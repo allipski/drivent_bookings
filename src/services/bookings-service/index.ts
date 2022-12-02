@@ -61,7 +61,11 @@ async function changeBooking(userId: number, roomId: number) {
 
   const bookings = await bookingRepository.updateBooking(userId, roomId);
 
-  return bookings;
+  const bookingId = {
+    bookingId: bookings.id
+  };
+
+  return bookingId;
 }
 
 const bookingService = {
