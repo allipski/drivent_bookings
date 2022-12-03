@@ -12,7 +12,7 @@ async function findRoomById(roomId: number) {
 }
 
 const roomRepository = {
-  findRoomById
+  findRoomById,
 };
 
 export default roomRepository;

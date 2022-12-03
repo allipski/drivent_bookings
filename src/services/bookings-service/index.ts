@@ -35,11 +35,7 @@ async function fetchBookings(userId: number) {
 async function isRoomAvailable(roomId: number) {
   const isAvailable = await roomRepository.findRoomById(roomId);
 
-  if(!isAvailable) {
-    throw notFoundError();
-  }
-
-  if(isAvailable.capacity === isAvailable.Booking.length) {
+  if(!isAvailable || isAvailable.capacity === isAvailable.Booking.length) {
     throw unauthorizedError();
   }
 }
@@ -51,21 +47,31 @@ async function createBooking(userId: number, roomId: number) {
 
   const newBooking = await bookingRepository.insertBooking(userId, roomId);
 
-  return newBooking;
+  const sendBooking = {
+    bookingId: newBooking.id,
+    Room: newBooking.Room
+  };
+
+  return sendBooking;
 }
 
-async function changeBooking(userId: number, roomId: number) {
-  await checkIfUserCanMakeABooking(userId);
+async function changeBooking(userId: number, bookingId: number, roomId: number) {
+  const userHasBooking = await bookingRepository.findBookings(userId);
+
+  if(!userHasBooking) {
+    throw notFoundError();
+  }
 
   await isRoomAvailable(roomId);
 
-  const bookings = await bookingRepository.updateBooking(userId, roomId);
+  const bookings = await bookingRepository.updateBooking(bookingId, roomId);
 
-  const bookingId = {
-    bookingId: bookings.id
+  const booking = {
+    "bookingId": bookings.id,
+    "Room": bookings.Room
   };
 
-  return bookingId;
+  return booking;
 }
 
 const bookingService = {
